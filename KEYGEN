@@ -1,0 +1,61 @@
+local KeyGen = {}
+
+local fRequest, fStringFormat, fSpawn = request or http.request or http_request or syn.request, string.format, task.spawn
+local HttpService = game:GetService("HttpService")
+
+-- Base URL of the Flask backend
+local baseUrl = "http://37.114.46.37:6243"
+
+-- Function to generate a new key
+local function generateKey()
+    local response = fRequest({
+        Url = baseUrl .. "/generate_key",
+        Method = "GET"
+    })
+
+    if response and response.Body then
+        local decoded = HttpService:JSONDecode(response.Body)
+        setclipboard(decoded.key)
+        return decoded.key
+    else
+        print("Error: Failed to generate a key")
+        return nil
+    end
+end
+
+-- Function to verify a key
+local function verifyKey(key)
+    local response = fRequest({
+        Url = baseUrl .. "/verify_key?key=" .. key,
+        Method = "GET"
+    })
+
+    if response and response.Body then
+        local decoded = HttpService:JSONDecode(response.Body)
+        if decoded.valid then
+            print("Key is valid: " .. key)
+        else
+            print("Key is invalid: " .. key)
+        end
+        return decoded.valid
+    else
+        print("Error: Failed to verify the key")
+        return false
+    end
+end
+
+-- Example Usage
+function KeyGen.genKeyFunc(genKey)
+    -- Generate a new key
+    if genKey == true then
+local newKey = generateKey()
+else
+return false
+end
+end
+
+function KeyGen.verifKeyFunc(key)
+verifyKey(key)
+end
+
+
